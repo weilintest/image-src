@@ -8,10 +8,10 @@
 
 制作出基于amd64和arm64架构的镜像
 
-* autocoreats/src-ros1:latest
-* autocoreats/src-ros1:vx.x.x
-* autocoreats/src-ros2:latest
-* autocoreats/src-ros2:vx.x.x
+* autocoreats/src-ros-melodic:latest
+* autocoreats/src-ros-melodic:vx.x.x
+* autocoreats/src-ros-foxy:latest
+* autocoreats/src-ros-foxy:vx.x.x
 
 在镜像中，需要环境变量:
 
