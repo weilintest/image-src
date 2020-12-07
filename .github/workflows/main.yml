@@ -1,0 +1,79 @@
+name: buildx
+
+on:
+  pull_request:
+    branches: main
+  push:
+    branches: main
+    tags:
+      - v*
+
+jobs:
+  buildx:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Prepare
+        id: prepare
+        run: |
+          DOCKER_PLATFORMS=linux/amd64
+          SOURCE_BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)
+          SOURCE_COMMIT=${GITHUB_SHA::8}
+          COMMIT_MSG=$(git log -1 HEAD --pretty=format:%s)
+          DOCKER_REPO=autocoreats/image-src
+          DOCKERFILE_PATH=./Dockerfile
+          DOCKER_TAG=latest
+          IMAGE_NAME=${DOCKER_REPO}:${DOCKER_TAG}
+          DOCKER_IMAGE=${DOCKER_REPO}
+
+          VERSION=latest
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${git describe --tags --abbrev=0}
+          fi
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            VERSION=nightly
+          fi
+
+          TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
+          if [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            TAGS="$TAGS --tag ${DOCKER_IMAGE}:latest"
+          fi
+
+          echo ::set-output name=docker_image::${DOCKER_IMAGE}
+          echo ::set-output name=version::${VERSION}
+          echo ::set-output name=buildx_args::--platform ${DOCKER_PLATFORMS} \
+            --build-arg VERSION=${VERSION} \
+            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+            --build-arg SOURCE_BRANCH=${SOURCE_BRANCH} \
+            --build-arg SOURCE_COMMIT=${SOURCE_COMMIT} \
+            --build-arg COMMIT_MSG=${COMMIT_MSG} \
+            --build-arg DOCKER_REPO=${DOCKER_REPO} \
+            --build-arg DOCKERFILE_PATH=${DOCKERFILE_PATH} \
+            --build-arg DOCKER_TAG=${DOCKER_TAG} \
+            --build-arg IMAGE_NAME=${IMAGE_NAME} \
+            --build-arg SOURCE_COMMIT=${SOURCE_COMMIT} \
+            ${TAGS} --file ./Dockerfile .
+      -
+        name: Set up Docker Buildx
+        uses: crazy-max/ghaction-docker-buildx@v3
+
+      -
+        name: Login to DockerHub
+        if: success() && github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          username: ${{secrets.DOCKER_USERNAME}}
+          password: ${{secrets.DOCKER_PASSWORD}}
+      -
+        name: Docker Buildx (push)
+        if: success() && github.event_name != 'pull_request'
+        run: |
+          docker buildx build --output "type=image,push=true" ${{ steps.prepare.outputs.buildx_args }}
+      -
+        name: Inspect image
+        if: always() && github.event_name != 'pull_request'
+        run: |
+          docker buildx imagetools inspect ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}
