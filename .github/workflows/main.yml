@@ -42,7 +42,7 @@ jobs:
           cd /home/runner/work/image-src/image-src/AutowareArchitectureProposal
           DOCKER_PLATFORMS=linux/amd64
           SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          SOURCE_COMMIT=${GITHUB_SHA::8}
+          SOURCE_COMMIT=$(git rev-list --max-parents=0 HEAD)
           COMMIT_MSG=$(git log -1 HEAD --pretty=format:%s)
           COMMIT_MSG=${COMMIT_MSG//[ ()]/-}
           DOCKER_REPO=betsyweilin/get-started
