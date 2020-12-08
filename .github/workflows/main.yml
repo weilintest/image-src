@@ -9,12 +9,25 @@ on:
       - v*
 
 jobs:
-  buildx:
+  build:
     runs-on: ubuntu-latest
     steps:
       -
         name: Checkout
         uses: actions/checkout@v2
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          name: id_rsa # optional
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: sync over ssh
+        run: |
+          git clone --single-branch --depth 1 git@github.com:tier4/AutowareArchitectureProposal.git  
+          git clone --single-branch --depth 1 git@github.com:astuff/kvaser_interface.git  AutowareArchitectureProposal/src/vendor/kvaser_interface  
+
       -
         name: Prepare
         id: prepare
