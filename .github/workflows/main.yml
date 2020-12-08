@@ -28,7 +28,12 @@ jobs:
           git clone --single-branch --depth 1 git@github.com:tier4/AutowareArchitectureProposal.git  
           git clone --single-branch --depth 1 git@github.com:astuff/kvaser_interface.git  AutowareArchitectureProposal/src/vendor/kvaser_interface  
           cd AutowareArchitectureProposal
-
+          echo $PWD
+          ls -al /etc/apt/ 
+          echo "deb http://packages.ros.org/ros/ubuntu bionic main" >  a.list
+          sudo mv a.list /etc/apt/sources.list.d/
+          curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xC1CF6E31E6BADE8868B172B4F42ED6FBAB17C654' | sudo apt-key add -
+          sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y     python3-vcstool
 
       -
         name: Prepare
