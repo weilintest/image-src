@@ -1,4 +1,4 @@
-name: buildx
+name: build-and-push
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
       - v*
 
 jobs:
-  build:
+  buildx:
     runs-on: ubuntu-latest
     steps:
       -
@@ -27,6 +27,7 @@ jobs:
         run: |
           git clone --single-branch --depth 1 git@github.com:tier4/AutowareArchitectureProposal.git  
           git clone --single-branch --depth 1 git@github.com:astuff/kvaser_interface.git  AutowareArchitectureProposal/src/vendor/kvaser_interface  
+          cd AutowareArchitectureProposal
 
       -
         name: Prepare
