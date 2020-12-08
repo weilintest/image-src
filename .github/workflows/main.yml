@@ -22,7 +22,8 @@ jobs:
           DOCKER_PLATFORMS=linux/amd64
           SOURCE_BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)
           SOURCE_COMMIT=${GITHUB_SHA::8}
-          COMMIT_MSG=${(git log -1 HEAD --pretty=format:%s)}
+          COMMIT_MSG=$(git log -1 HEAD --pretty=format:%s)
+          COMMIT_MSG=${COMMIT_MSG// /-}
           DOCKER_REPO=betsyweilin/get-started
           DOCKERFILE_PATH=./Dockerfile
           DOCKER_TAG=latest
