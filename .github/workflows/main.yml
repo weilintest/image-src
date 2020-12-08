@@ -29,6 +29,7 @@ jobs:
           git clone --single-branch --depth 1 git@github.com:astuff/kvaser_interface.git  AutowareArchitectureProposal/src/vendor/kvaser_interface  
           cd AutowareArchitectureProposal
 
+
       -
         name: Prepare
         id: prepare
