@@ -29,21 +29,22 @@ jobs:
           git clone --single-branch --depth 1 git@github.com:astuff/kvaser_interface.git  AutowareArchitectureProposal/src/vendor/kvaser_interface  
           cd AutowareArchitectureProposal
           echo $PWD
-          ls -al /etc/apt/ 
-          echo "deb http://packages.ros.org/ros/ubuntu bionic main" >  a.list
-          sudo mv a.list /etc/apt/sources.list.d/
+          echo "deb http://packages.ros.org/ros/ubuntu bionic main" >  vcs.list
+          sudo mv vcs.list /etc/apt/sources.list.d/
           curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xC1CF6E31E6BADE8868B172B4F42ED6FBAB17C654' | sudo apt-key add -
           sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y     python3-vcstool
-
+          vcs import src < autoware.proj.repos
+          git --version
       -
         name: Prepare
         id: prepare
         run: |
+          cd /home/runner/work/image-src/image-src/AutowareArchitectureProposal
           DOCKER_PLATFORMS=linux/amd64
-          SOURCE_BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)
+          SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           SOURCE_COMMIT=${GITHUB_SHA::8}
           COMMIT_MSG=$(git log -1 HEAD --pretty=format:%s)
-          COMMIT_MSG=${COMMIT_MSG// /-}
+          COMMIT_MSG=${COMMIT_MSG//[ ()]/-}
           DOCKER_REPO=betsyweilin/get-started
           DOCKERFILE_PATH=./Dockerfile
           DOCKER_TAG=latest
