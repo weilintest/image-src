@@ -40,7 +40,7 @@ jobs:
         id: prepare
         run: |
           cd /home/runner/work/image-src/image-src/AutowareArchitectureProposal
-          DOCKER_PLATFORMS=linux/amd64
+          DOCKER_PLATFORMS=linux/amd64,linux/arm64
           SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           SOURCE_COMMIT=$(git rev-list --max-parents=0 HEAD)
           COMMIT_MSG=$(git log -1 HEAD --pretty=format:%s)
@@ -51,21 +51,21 @@ jobs:
           IMAGE_NAME=${DOCKER_REPO}:${DOCKER_TAG}
           DOCKER_IMAGE=${DOCKER_REPO}
 
-          VERSION=latest
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
+          VERSION=
+          if [[ $(git tag -l) ]]; then
             VERSION=${git describe --tags --abbrev=0}
           fi
           if [ "${{ github.event_name }}" = "schedule" ]; then
             VERSION=nightly
           fi
 
-          TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
+          TAGS="--tag ${DOCKER_IMAGE}:${DOCKER_TAG}"
           if [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
             TAGS="$TAGS --tag ${DOCKER_IMAGE}:latest"
           fi
 
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
-          echo ::set-output name=version::${VERSION}
+          echo ::set-output name=tag::${DOCKER_TAG}
           echo ::set-output name=buildx_args::--platform ${DOCKER_PLATFORMS} \
             --build-arg VERSION=${VERSION} \
             --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
@@ -97,4 +97,4 @@ jobs:
         name: Inspect image
         if: always() && github.event_name != 'pull_request'
         run: |
-          docker buildx imagetools inspect ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}
+          docker buildx imagetools inspect ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.tag }}
