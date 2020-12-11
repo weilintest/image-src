@@ -46,7 +46,7 @@ jobs:
           COMMIT_MSG=$(git log -1 HEAD --pretty=format:%s)
           COMMIT_MSG=${COMMIT_MSG//[ ()]/-}
 
-          DOCKER_REPO=docker.pkg.github.com/weilintest/image-src
+          DOCKER_REPO=ghcr.io/weilintest/image-src
           DOCKERFILE_PATH=./Dockerfile
           DOCKER_TAG=latest
           IMAGE_NAME=${DOCKER_REPO}:${DOCKER_TAG}
