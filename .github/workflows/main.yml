@@ -45,7 +45,7 @@ jobs:
           SOURCE_COMMIT=$(git rev-list --max-parents=0 HEAD)
           COMMIT_MSG=$(git log -1 HEAD --pretty=format:%s)
           COMMIT_MSG=${COMMIT_MSG//[ ()]/-}
-#         DOCKER_REPO=betsyweilin/get-started
+
           DOCKER_REPO=docker.pkg.github.com/weilintest/image-src
           DOCKERFILE_PATH=./Dockerfile
           DOCKER_TAG=latest
