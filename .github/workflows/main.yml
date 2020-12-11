@@ -45,13 +45,13 @@ jobs:
           SOURCE_COMMIT=$(git rev-list --max-parents=0 HEAD)
           COMMIT_MSG=$(git log -1 HEAD --pretty=format:%s)
           COMMIT_MSG=${COMMIT_MSG//[ ()]/-}
-
           DOCKER_REPO=ghcr.io/weilintest/image-src
           DOCKERFILE_PATH=./Dockerfile
           DOCKER_TAG=latest
           IMAGE_NAME=${DOCKER_REPO}:${DOCKER_TAG}
           DOCKER_IMAGE=${DOCKER_REPO}
-
+          echo ${SOURCE_COMMIT} > src/SRC_SHA
+          echo ${VERSION} > src/SRC_VER
           VERSION=
           if [[ $(git tag -l) ]]; then
             VERSION=${git describe --tags --abbrev=0}
@@ -78,10 +78,12 @@ jobs:
             --build-arg DOCKER_TAG=${DOCKER_TAG} \
             --build-arg IMAGE_NAME=${IMAGE_NAME} \
             --build-arg SOURCE_COMMIT=${SOURCE_COMMIT} \
+            --build-arg VERSION=${VERSION} \
             ${TAGS} --file ./Dockerfile .
       -
         name: Set up Docker Buildx
-        uses: crazy-max/ghaction-docker-buildx@v3
+        uses: docker/setup-buildx-action@v1
+#       uses: crazy-max/ghaction-docker-buildx@v3
 #      -
 #        name: Login to DockerHub
 #        if: success() && github.event_name != 'pull_request'
