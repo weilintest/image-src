@@ -2,9 +2,9 @@ name: build-and-push
 
 on:
   pull_request:
-    branches: main
+    branches: wl
   push:
-    branches: main
+    branches: wl
     tags:
       - v*
 
@@ -56,9 +56,11 @@ jobs:
           echo $(git tag -l)
           echo ${VERSION}
           if [[ $(git tag -l) ]]; then
-            echo ${VERSION}
+
             VERSION=${git describe --tags --abbrev=0}
             DOCKER_TAG=${VERSION}
+            echo ${VERSION}
+            echo ${DOCKER_TAG}
           fi
           if [ "${{ github.event_name }}" = "schedule" ]; then
             VERSION=nightly
