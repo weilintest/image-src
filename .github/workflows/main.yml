@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - v*
+  push:
+    branches: [ ros2 ]
+       
 
 jobs:
   buildx:
